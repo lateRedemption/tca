@@ -1,3 +1,4 @@
+
 import type { Book } from "../types/book";
 
 interface GoogleVolume {
@@ -53,10 +54,36 @@ export async function searchBooks(query: string): Promise<Book[]> {
   if (apiKey) params.set("key", apiKey);
 
   const response = await fetch(`${API_URL}?${params.toString()}`);
+
   if (!response.ok) {
     throw new Error(`Google Books retornou HTTP ${response.status}.`);
   }
 
   const data: GoogleBooksResponse = await response.json();
+
   return (data.items ?? []).map(normalizeBook);
+}
+
+export async function getBookById(id: string): Promise<Book> {
+  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  const params = new URLSearchParams();
+
+  if (apiKey) params.set("key", apiKey);
+
+  const query = params.toString();
+  const response = await fetch(
+    `${API_URL}/${encodeURIComponent(id)}${query ? `?${query}` : ""}`
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Livro não encontrado.");
+    }
+
+    throw new Error(`Google Books retornou HTTP ${response.status}.`);
+  }
+
+  const data: GoogleVolume = await response.json();
+
+  return normalizeBook(data);
 }

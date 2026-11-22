@@ -17,17 +17,25 @@ export default function HomePage() {
   const [searched, setSearched] = useState(false);
 
   async function handleSearch(query: string) {
-    if (!query) { setMessage("Digite algo para pesquisar."); return; }
+    if (!query) {
+      setMessage("Digite algo para pesquisar.");
+      return;
+    }
+
     setLoading(true);
     setSearched(true);
     setMessage("");
+
     try {
       const results = await searchBooks(query);
       setBooks(results);
       setMessage(results.length ? "" : "Nenhum livro encontrado.");
+
       if (user) {
-        const favorites = await getFavorites(user.id);
-        setFavoriteIds(favorites.map((item) => item.google_books_id));
+        const favorites = await getFavorites();
+        setFavoriteIds(favorites.map((book) => book.id));
+      } else {
+        setFavoriteIds([]);
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erro inesperado na pesquisa.");
@@ -37,13 +45,17 @@ export default function HomePage() {
   }
 
   async function toggleFavorite(book: Book) {
-    if (!user) { navigate("/login"); return; }
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     try {
       if (favoriteIds.includes(book.id)) {
-        await removeFavorite(user.id, book.id);
+        await removeFavorite(book.id);
         setFavoriteIds((current) => current.filter((id) => id !== book.id));
       } else {
-        await addFavorite(user.id, book);
+        await addFavorite(book);
         setFavoriteIds((current) => [...current, book.id]);
       }
     } catch (error) {
@@ -59,15 +71,28 @@ export default function HomePage() {
         <p className="hero-copy">Explore milhões de livros e guarde seus favoritos em uma biblioteca pessoal.</p>
         <SearchBar onSearch={handleSearch} />
       </section>
+
       <section className="results-section">
         <div className="section-heading">
-          <div><p className="eyebrow">{searched ? "RESULTADOS DA PESQUISA" : "DESCUBRA"}</p><h2>{searched ? "Livros encontrados" : "Explore o catálogo"}</h2></div>
+          <div>
+            <p className="eyebrow">{searched ? "RESULTADOS DA PESQUISA" : "DESCUBRA"}</p>
+            <h2>{searched ? "Livros encontrados" : "Explore o catálogo"}</h2>
+          </div>
           {books.length > 0 && <span className="result-count">{books.length} livros</span>}
         </div>
+
         {loading && <p className="message">Buscando livros...</p>}
         {!loading && message && <p className="message">{message}</p>}
+
         <div className="book-grid">
-          {books.map((book) => <BookCard key={book.id} book={book} favorite={favoriteIds.includes(book.id)} onToggleFavorite={toggleFavorite} />)}
+          {books.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              favorite={favoriteIds.includes(book.id)}
+              onToggleFavorite={toggleFavorite}
+            />
+          ))}
         </div>
       </section>
     </>

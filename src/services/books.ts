@@ -10,7 +10,7 @@ interface GoogleVolume {
     publishedDate?: string;
     pageCount?: number;
     categories?: string[];
-    infoLink?: string;
+    publisher?: string;
   };
 }
 
@@ -34,7 +34,7 @@ function normalizeBook(volume: GoogleVolume): Book {
     publishedDate: info.publishedDate,
     pageCount: info.pageCount,
     categories: info.categories ?? [],
-    publisher: info.infoLink,
+    publisher: info.publisher,
   };
 }
 

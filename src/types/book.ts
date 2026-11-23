@@ -26,6 +26,7 @@ export interface GoogleBooksResponse {
   }>;
 }
 
+
 export interface FavoriteRow {
   id: string;
   user_id: string;
@@ -34,5 +35,6 @@ export interface FavoriteRow {
   authors: string[];
   thumbnail: string | null;
   published_date: string | null;
+  notes: string | null;
   created_at: string;
 }

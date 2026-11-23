@@ -72,7 +72,7 @@ export default function HomePage() {
         <SearchBar onSearch={handleSearch} />
       </section>
 
-      <section className="results-section">
+      <section className="results-section catalog-section">
         <div className="section-heading">
           <div>
             <p className="eyebrow">{searched ? "RESULTADOS DA PESQUISA" : "DESCUBRA"}</p>

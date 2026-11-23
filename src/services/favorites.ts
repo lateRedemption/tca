@@ -1,3 +1,4 @@
+
 import { supabase } from "../lib/supabase";
 import type { Book, FavoriteRow } from "../types/book";
 
@@ -11,28 +12,18 @@ async function getCurrentUserId(): Promise<string> {
   return data.user.id;
 }
 
-function mapFavorite(row: FavoriteRow): Book {
-  return {
-    id: row.google_books_id,
-    title: row.title,
-    authors: row.authors ?? [],
-    thumbnail: row.thumbnail ?? undefined,
-    publishedDate: row.published_date ?? undefined,
-  };
-}
-
-export async function getFavorites(): Promise<Book[]> {
+export async function getFavorites(): Promise<FavoriteRow[]> {
   const userId = await getCurrentUserId();
 
   const { data, error } = await supabase
     .from("favorites")
-    .select("id,user_id,google_books_id,title,authors,thumbnail,published_date,created_at")
+    .select("id,user_id,google_books_id,title,authors,thumbnail,published_date,notes,created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return (data ?? []).map((row) => mapFavorite(row as FavoriteRow));
+  return (data ?? []) as FavoriteRow[];
 }
 
 export async function addFavorite(book: Book): Promise<void> {
@@ -49,6 +40,21 @@ export async function addFavorite(book: Book): Promise<void> {
     },
     { onConflict: "user_id,google_books_id" },
   );
+
+  if (error) throw new Error(error.message);
+}
+
+export async function updateFavoriteNotes(
+  googleBookId: string,
+  notes: string | null,
+): Promise<void> {
+  const userId = await getCurrentUserId();
+
+  const { error } = await supabase
+    .from("favorites")
+    .update({ notes })
+    .eq("user_id", userId)
+    .eq("google_books_id", googleBookId);
 
   if (error) throw new Error(error.message);
 }

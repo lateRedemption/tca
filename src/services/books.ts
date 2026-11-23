@@ -50,7 +50,7 @@ export async function searchBooks(query: string): Promise<Book[]> {
     orderBy: "relevance",
   });
 
-  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  const apiKey = "AIzaSyBJNuvgtR8i1uD-fm1mgMS3FjeTlxzgWWI";
   if (apiKey) params.set("key", apiKey);
 
   const response = await fetch(`${API_URL}?${params.toString()}`);
@@ -65,7 +65,7 @@ export async function searchBooks(query: string): Promise<Book[]> {
 }
 
 export async function getBookById(id: string): Promise<Book> {
-  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  const apiKey = "AIzaSyBJNuvgtR8i1uD-fm1mgMS3FjeTlxzgWWI";
   const params = new URLSearchParams();
 
   if (apiKey) params.set("key", apiKey);
